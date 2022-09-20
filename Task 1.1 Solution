@@ -1,0 +1,27 @@
+// Get the custom field ID for an existing "amount" field
+def amountField = get("/rest/api/3/field")
+        .asObject(List)
+        .body
+        .find { (it as Map).name == 'Amount' }
+        .id
+
+// Extract the value of that field from the issue being viewed
+def amountValue = issue.fields[amountField]
+
+// Get the custom field ID for an existing "price" field
+def priceField = get("/rest/api/3/field")
+        .asObject(List)
+        .body
+        .find { (it as Map).name == 'Price' }
+        .id
+
+// Extract the value of that field from the issue being viewed
+def priceValue = issue.fields[priceField]
+
+        
+// Return the new total value
+if (amountValue != null && priceValue != null) {
+    return amountValue * priceValue
+} else {
+    return 0
+}
