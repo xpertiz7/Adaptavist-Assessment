@@ -1,0 +1,13 @@
+// Retrieve all the subtasks of this issue's parent
+def parentKey = issue.key
+
+def allSubtasks = get("/rest/api/2/search")
+        .queryString("jql", "parent=${parentKey}") 
+        .queryString("fields", "[]") 
+        .asObject(Map)
+        .body
+        .issues as List<Map>
+
+
+// Return the subtask total value
+return allSubtasks.size()
