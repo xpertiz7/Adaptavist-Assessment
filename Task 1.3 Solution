@@ -1,0 +1,70 @@
+// Specify here the issue key for the issue to transition
+def issueKey = 'ASUP-1'
+
+
+//check if issue is assigned
+def result = get('/rest/api/3/issue/' + issueKey + '?fields=assignee')
+   .header('Content-Type', 'application/json')
+   .asObject(Map)
+   
+if (result.body.fields.assignee.accountId != null) 
+{
+
+// The ID of the workflow transition to execute.
+// Note - The transition ID must represent a valid transition for the workflow that the issue uses.
+def transitionID = '21'
+
+
+// The rest call to transition the issue
+def transitionIssue = post("/rest/api/3/issue/${issueKey}/transitions")
+        .header("Content-Type", "application/json")
+        .body( [
+                transition: [id: transitionID]
+                ]).asObject(Map)
+                
+if (transitionIssue.status == 204) 
+{
+    
+// Value to update in system field
+def summaryValue = 'Test Transition1'
+
+
+// The rest call to update the system field
+def updateField = put("/rest/api/3/issue/${issueKey}")
+    .header('Content-Type', 'application/json')
+    .body([
+        fields: [
+            summary: summaryValue
+        ]
+    ]).asString()
+    
+if (updateField.status == 204) 
+{
+
+// Specify the name of the select list field to set
+def selectListFieldName = 'Amount'
+def customfieldvalue = '5'as Integer
+
+// Get the Custom field to get the option value from
+def customField = get("/rest/api/2/field")
+        .asObject(List)
+        .body
+        .find {
+            (it as Map).name == selectListFieldName
+        } as Map
+
+def customfieldID = customField.id
+
+//update the custom field vale
+def newValue = put("/rest/api/2/issue/ASUP-1")
+        .header('Content-Type', 'application/json')
+        .body([
+            fields: [
+                (customfieldID): customfieldvalue
+            ]
+        ])
+        .asString()
+
+}
+}
+}
