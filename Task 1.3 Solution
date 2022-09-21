@@ -25,25 +25,10 @@ def transitionIssue = post("/rest/api/3/issue/${issueKey}/transitions")
 if (transitionIssue.status == 204) 
 {
     
-// Value to update in system field
-def summaryValue = 'Test Transition1'
-
-
-// The rest call to update the system field
-def updateField = put("/rest/api/3/issue/${issueKey}")
-    .header('Content-Type', 'application/json')
-    .body([
-        fields: [
-            summary: summaryValue
-        ]
-    ]).asString()
-    
-if (updateField.status == 204) 
-{
-
-// Specify the name of the select list field to set
+// Value to update in fields
+def summaryValue = 'Test Transition3'
 def selectListFieldName = 'Amount'
-def customfieldvalue = '5'as Integer
+def customfieldvalue = '11'as Integer
 
 // Get the Custom field to get the option value from
 def customField = get("/rest/api/2/field")
@@ -55,16 +40,20 @@ def customField = get("/rest/api/2/field")
 
 def customfieldID = customField.id
 
-//update the custom field vale
-def newValue = put("/rest/api/2/issue/ASUP-1")
-        .header('Content-Type', 'application/json')
-        .body([
-            fields: [
-                (customfieldID): customfieldvalue
-            ]
-        ])
-        .asString()
-
+// The rest call to update the fields
+def updateField = put("/rest/api/3/issue/${issueKey}")
+    .header('Content-Type', 'application/json')
+    .body([
+        fields: [
+            summary: summaryValue,
+            (customfieldID): customfieldvalue
+        ]
+    ]).asString()
+    
+if (result.status == 200) {
+    return 'Success'
+} else {
+    return "${result.status}: ${result.body}"
 }
 }
 }
